@@ -1,15 +1,19 @@
 package pgdb
 
 import (
-	"access-platform/auth/internal/entity"
-	"access-platform/auth/internal/repository"
-	"access-platform/auth/pkg/postgres"
+	"access-platform/internal/entity"
+	"access-platform/pkg/postgres"
 	"context"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+)
+
+var (
+	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrUserNotFound      = errors.New("user not found")
 )
 
 // UserRepository is a concrete implementation of the User repository interface.
@@ -42,12 +46,13 @@ func (r *UserRepository) SaveUser(ctx context.Context, email string, passHash []
 		pgErr, ok := err.(*pgconn.PgError)
 		if ok {
 			if pgErr.Code == "23505" {
-				return uuid.Nil, fmt.Errorf("%s: %w", op, repository.ErrUserAlreadyExists)
+				return uuid.Nil, fmt.Errorf("%s: %w", op, ErrUserAlreadyExists)
 			}
 		} else {
 			return uuid.Nil, fmt.Errorf("%s: %w", op, err)
 		}
 	}
+	fmt.Println(err)
 
 	return userID, err
 }
@@ -70,7 +75,7 @@ func (r *UserRepository) GetUser(ctx context.Context, email string) (entity.User
 	err := r.DB.QueryRow(ctx, query, args).Scan(&userID, &userEmail, &userPasswordHash, &userRole)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return entity.User{}, fmt.Errorf("%s: %w", op, repository.ErrUserNotFound)
+			return entity.User{}, fmt.Errorf("%s: %w", op, ErrUserNotFound)
 		}
 
 		return entity.User{}, fmt.Errorf("%s: %w", op, err)

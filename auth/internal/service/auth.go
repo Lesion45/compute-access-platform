@@ -1,9 +1,10 @@
 package service
 
 import (
-	"access-platform/auth/internal/entity"
-	"access-platform/auth/internal/lib/jwt"
-	"access-platform/auth/internal/repository"
+	"access-platform/internal/entity"
+	"access-platform/internal/lib/jwt"
+	"access-platform/internal/repository"
+	"access-platform/internal/repository/pgdb"
 	"context"
 	"errors"
 	"fmt"
@@ -56,7 +57,7 @@ func (s *AuthService) Register(ctx context.Context, email string, password strin
 
 	id, err := s.userRepository.SaveUser(ctx, email, passwordHash, role)
 	if err != nil {
-		if errors.Is(err, repository.ErrUserAlreadyExists) {
+		if errors.Is(err, pgdb.ErrUserAlreadyExists) {
 			s.log.Warn("user already exists", zap.Error(err), zap.String("op", op))
 
 			return entity.RegisteredUser{}, fmt.Errorf("%s: %w", op, ErrUserAlreadyExists)
@@ -80,7 +81,7 @@ func (s *AuthService) Login(ctx context.Context, email string, password string) 
 
 	user, err := s.userRepository.GetUser(ctx, email)
 	if err != nil {
-		if errors.Is(err, repository.ErrUserNotFound) {
+		if errors.Is(err, pgdb.ErrUserNotFound) {
 			s.log.Warn("user not found", zap.Error(err), zap.String("op", op))
 
 			return entity.LoggedUser{}, fmt.Errorf("%s: %w", op, ErrUserNotFound)

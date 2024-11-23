@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"access-platform/auth/internal/entity"
-	"access-platform/auth/internal/repository/pgdb"
-	"access-platform/auth/pkg/postgres"
+	"access-platform/internal/entity"
+	"access-platform/internal/repository/pgdb"
+	"access-platform/pkg/postgres"
 	"context"
 	"github.com/google/uuid"
 )

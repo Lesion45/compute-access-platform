@@ -1,33 +1,40 @@
 package postgres
 
 import (
+	"access-platform/config"
 	"context"
-	"log"
-	"sync"
-
+	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"go.uber.org/zap"
 )
 
 type Postgres struct {
 	DB *pgxpool.Pool
 }
 
-func NewPostgres(ctx context.Context, dsn string) *Postgres {
-	var (
-		pgInstance *Postgres
-		pgOnce     sync.Once
-	)
+func (pg *Postgres) PostgresHealthCheck(ctx context.Context) error {
+	if err := pg.DB.Ping(ctx); err != nil {
+		return err
+	}
+	return nil
+}
 
-	pgOnce.Do(func() {
-		db, err := pgxpool.New(ctx, dsn)
-		if err != nil {
-			log.Fatal("Unable to connect to database", zap.Error(err))
-		}
+var (
+	pgInstance *Postgres
+)
 
-		pgInstance = &Postgres{
-			DB: db,
-		}
-	})
-	return pgInstance
+func NewPG(ctx context.Context, storage config.Storage) (*Postgres, error) {
+	const op = "storage.postgres.NewPG"
+
+	DSN := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		storage.Host, storage.Port, storage.User, storage.Password, storage.DBname)
+
+	db, err := pgxpool.New(ctx, DSN)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	pgInstance = &Postgres{DB: db}
+
+	return pgInstance, nil
 }
