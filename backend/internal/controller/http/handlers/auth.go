@@ -1,4 +1,4 @@
-package auth
+package handlers
 
 import (
 	"access-platform/internal/controller/http/response"
@@ -13,23 +13,23 @@ import (
 // RegisterRequest is the structure that holds the incoming registration request
 // containing the user's email, password, and role.
 type RegisterRequest struct {
-	Email    string `json:"user-email"`
-	Password string `json:"user-password"`
-	Role     string `json:"user-role"`
+	Email    string `json:"userEmail"`
+	Password string `json:"userPassword"`
+	Role     string `json:"userRole"`
 }
 
 // RegisterResponse is the structure returned in the response after a successful user registration.
 // It contains the user ID, email, and role.
 type RegisterResponse struct {
-	ID    uuid.UUID `json:"user-id"`
-	Email string    `json:"user-email"`
-	Role  string    `json:"user-role"`
+	ID    uuid.UUID `json:"userId"`
+	Email string    `json:"userEmail"`
+	Role  string    `json:"userRole"`
 }
 
 // Register is the handler function for registering a user in the system.
 // It accepts the user details in the request body, interacts with the AuthService,
 // and returns the user information on successful registration.
-func Register(log *zap.Logger, auth *service.AuthService) gin.HandlerFunc {
+func Register(log *zap.Logger, services *service.Service) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		const op = "handlers.v1.Register"
 
@@ -45,7 +45,7 @@ func Register(log *zap.Logger, auth *service.AuthService) gin.HandlerFunc {
 
 		log.Info("request body decoded", zap.Any("request", req), zap.String("op", op))
 
-		user, err := auth.Register(ctx, req.Email, req.Password, req.Role)
+		user, err := services.AuthService.Register(ctx, req.Email, req.Password, req.Role)
 		if err != nil {
 			log.Info("failed to register user", zap.String("op", op))
 
@@ -72,18 +72,18 @@ func Register(log *zap.Logger, auth *service.AuthService) gin.HandlerFunc {
 }
 
 type LoginRequest struct {
-	Email    string `json:"user-email"`
-	Password string `json:"user-password"`
+	Email    string `json:"userEmail"`
+	Password string `json:"userPassword"`
 }
 
 type LoginResponse struct {
-	ID    uuid.UUID `json:"user-id"`
-	Email string    `json:"user-email"`
-	Role  string    `json:"user-role"`
+	ID    uuid.UUID `json:"userId"`
+	Email string    `json:"userEmail"`
+	Role  string    `json:"userRole"`
 	Token string    `json:"token"`
 }
 
-func Login(log *zap.Logger, auth *service.AuthService) gin.HandlerFunc {
+func Login(log *zap.Logger, services *service.Service) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		const op = "handlers.v1.Login"
 
@@ -99,7 +99,7 @@ func Login(log *zap.Logger, auth *service.AuthService) gin.HandlerFunc {
 
 		log.Info("request body decoded", zap.Any("request", req), zap.String("op", op))
 
-		user, err := auth.Login(ctx, req.Email, req.Password)
+		user, err := services.AuthService.Login(ctx, req.Email, req.Password)
 		if err != nil {
 			log.Info("failed to login", zap.String("op", op))
 

@@ -38,7 +38,7 @@ func Run() {
 	log.Info("Initializing repositories: successful!")
 
 	log.Info("Initializing services...")
-	deps := service.AuthDependencies{
+	deps := service.ServiceDependencies{
 		Log:       log,
 		Repos:     repositories,
 		SecretKey: cfg.SecretKey,

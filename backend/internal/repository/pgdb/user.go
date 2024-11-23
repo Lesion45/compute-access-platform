@@ -52,7 +52,6 @@ func (r *UserRepository) SaveUser(ctx context.Context, email string, passHash []
 			return uuid.Nil, fmt.Errorf("%s: %w", op, err)
 		}
 	}
-	fmt.Println(err)
 
 	return userID, err
 }

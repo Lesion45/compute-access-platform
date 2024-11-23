@@ -34,7 +34,7 @@ type AuthService struct {
 
 // New creates a new instance of AuthService with the provided dependencies.
 
-func New(deps AuthDependencies) *AuthService {
+func NewAuthService(deps AuthDependencies) *AuthService {
 	return &AuthService{
 		log:            deps.Log,
 		userRepository: deps.Repos.User,
