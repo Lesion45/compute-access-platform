@@ -12,4 +12,4 @@ http-server:
   timeout: 10s
   idle-timeout: 60s
 
-secret-key: "arbuzarbuz"
+secret-key: "2acef1e8-6a19-4efd-b19c-7959c3ffdad0"
