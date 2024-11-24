@@ -23,7 +23,7 @@ func InitRouter(log *zap.Logger, service *service.Service) *gin.Engine {
 		mainGroup.GET("/get_computer", handlers.GetComputer(log, service))
 		mainGroup.POST("/reserve_computer", handlers.ReserveComputer(log, service))
 		mainGroup.POST("/relieve_computer", handlers.RelieveComputer(log, service))
-
+		mainGroup.GET("/get_all", handlers.GetAllComputers(log, service))
 	}
 	return router
 }

@@ -210,3 +210,46 @@ func RelieveComputer(log *zap.Logger, services *service.Service) gin.HandlerFunc
 		return
 	}
 }
+
+type GetAllComputersResponse struct {
+	Computers []GetComputerResponse `json:"computers"`
+}
+
+func GetAllComputers(log *zap.Logger, services *service.Service) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		const op = "handlers.v1.GetAllComputers"
+
+		log.Info("attempting to fetch all computers", zap.String("op", op))
+
+		// Вызов метода сервиса для получения всех компьютеров
+		computers, err := services.ComputeService.GetAllComputers(ctx)
+		if err != nil {
+			log.Error("failed to fetch all computers", zap.Error(err), zap.String("op", op))
+			ctx.IndentedJSON(http.StatusInternalServerError, response.Error("internal server error"))
+
+			return
+		}
+
+		log.Info("successfully fetched all computers", zap.Int("count", len(computers)), zap.String("op", op))
+
+		// Подготовка ответа
+		var responseComputers []GetComputerResponse
+		for _, computer := range computers {
+			responseComputers = append(responseComputers, GetComputerResponse{
+				ID:     computer.ID,
+				OS:     computer.OS,
+				CPU:    computer.CPU,
+				RAM:    computer.RAM,
+				Status: computer.Status,
+				SSH:    computer.SSH,
+			})
+		}
+
+		// Возвращаем JSON-ответ
+		ctx.IndentedJSON(http.StatusOK, GetAllComputersResponse{
+			Computers: responseComputers,
+		})
+
+		return
+	}
+}

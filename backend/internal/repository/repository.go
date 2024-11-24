@@ -20,6 +20,7 @@ type Computer interface {
 	GetComputer(ctx context.Context, id uuid.UUID) (entity.Computer, error)
 	ReserveComputer(ctx context.Context, id uuid.UUID) error
 	RelieveComputer(ctx context.Context, id uuid.UUID) error
+	GetAllComputers(ctx context.Context) ([]entity.Computer, error)
 }
 
 // Repositories is a struct that includes the User repository interface.

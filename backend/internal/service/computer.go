@@ -14,6 +14,7 @@ type ComputeAccess interface {
 	GetComputer(ctx context.Context, id uuid.UUID) (entity.Computer, error)
 	ReserveComputer(ctx context.Context, id uuid.UUID) error
 	RelieveComputer(ctx context.Context, id uuid.UUID) error
+	GetAllComputers(ctx context.Context) ([]entity.Computer, error)
 }
 
 type ComputeAccessDependencies struct {
@@ -102,4 +103,22 @@ func (s *ComputeAccessService) RelieveComputer(ctx context.Context, id uuid.UUID
 	}
 
 	return nil
+}
+
+func (s *ComputeAccessService) GetAllComputers(ctx context.Context) ([]entity.Computer, error) {
+	const op = "service.Access.GetAllComputers"
+
+	s.log.Info("attempting to get all computers", zap.String("op", op))
+
+	// Вызов метода репозитория для получения всех компьютеров
+	computers, err := s.computerRepository.GetAllComputers(ctx)
+	if err != nil {
+		s.log.Error("failed to get all computers", zap.Error(err), zap.String("op", op))
+
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	s.log.Info("successfully retrieved all computers", zap.Int("count", len(computers)), zap.String("op", op))
+
+	return computers, nil
 }

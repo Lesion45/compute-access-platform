@@ -127,3 +127,39 @@ func (r *ComputerRepository) RelieveComputer(ctx context.Context, id uuid.UUID) 
 
 	return nil
 }
+
+func (r *ComputerRepository) GetAllComputers(ctx context.Context) ([]entity.Computer, error) {
+	const op = "repository.computer.GetAllComputers"
+
+	// SQL-запрос для получения всех записей из таблицы
+	query := `SELECT id, os, cpu, ram, status, ssh FROM computers_schema.computer`
+
+	// Выполнение запроса
+	rows, err := r.DB.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: failed to execute query: %w", op, err)
+	}
+	defer rows.Close()
+
+	// Срез для хранения результатов
+	var computers []entity.Computer
+
+	// Итерация по результатам
+	for rows.Next() {
+		var computer entity.Computer
+
+		err := rows.Scan(&computer.ID, &computer.OS, &computer.CPU, &computer.RAM, &computer.Status, &computer.SSH)
+		if err != nil {
+			return nil, fmt.Errorf("%s: failed to scan row: %w", op, err)
+		}
+
+		computers = append(computers, computer)
+	}
+
+	// Проверка ошибок, возникших во время итерации
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("%s: rows iteration error: %w", op, err)
+	}
+
+	return computers, nil
+}
